@@ -6,7 +6,7 @@
 /*   By: jguleski <jguleski@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/02 14:50:38 by jguleski          #+#    #+#             */
-/*   Updated: 2018/11/02 19:05:55 by jguleski         ###   ########.fr       */
+/*   Updated: 2018/11/03 00:14:09 by jguleski         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,8 @@ int	main(int argc, char **argv)
 		result[i++] = ft_strnew(4);
 	if (argc != 2)
 		exit_app("usage: bla bla");
-	
 	parse_tetris(argv[1], tetris);
+	play_tetris(tetris, result);
 
 	return (0);
 	

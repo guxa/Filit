@@ -6,7 +6,7 @@
 /*   By: jguleski <jguleski@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/02 16:43:17 by jguleski          #+#    #+#             */
-/*   Updated: 2018/11/02 21:33:13 by jguleski         ###   ########.fr       */
+/*   Updated: 2018/11/03 00:41:56 by jguleski         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 ** i se dodavat x, zs taka sekogas prvata cifra ke e redot vtorata kolona 
 */
 
-void	check_valid_plays(char **tetris, char **result)
+void	play_tetris(char **tetris, char **result)
 {
 	static int	i;
 	int			x;
@@ -29,7 +29,7 @@ void	check_valid_plays(char **tetris, char **result)
 	i = 0;
 	x = 0;
 	el = 0;
-	while (el != 4) // || (i + 1) % 5 != 0) //ova drugava proverka so i mozda in e trebit ovde
+	while (tetris[i]) //(el != 4) // || (i + 1) % 5 != 0) //ova drugava proverka so i mozda in e trebit ovde
 	{
 		while (tetris[i][x])
 		{
@@ -37,63 +37,82 @@ void	check_valid_plays(char **tetris, char **result)
 				arr[el++] = (i % 5) * 10 + x;
 			x++;
 		}
+		if (el == 4)
+			check_plays(arr, result, i);
+		if (el == 4)
+			el = 0;
 		i++;
 		x = 0;
 	}
-	check_play(arr, result)
 }
 
-static	void	check_play(int arr[4], char **result)
+void	check_plays(int arr[4], char **result, int test)
 {
-	int el;
 	int row;
 	int col;
+	//t_fillit	fil;
 
-	el = 0;
-	while (el != 4) //ova mozda ne trebit
+	row = 0;
+	col = 0;
+	while (row < 4)
 	{
-		while (row < 4)
+		while (col < 4)
 		{
-			while (col < 4)
+			if (result[row][col] == '\0')
 			{
-				if (result[row][col] == '\0')
-					{
-						if (checkafter(arr[4], el, row, col))
-							//checkscore;
-					}
+				if (check_after(arr, result, row, col) == 0)
+					b_printf("Test br:%d -> row %d  columns: %d\n",test, row, col);
+					//score = get_score(arr[4], result, row, col);
 			}
-
-			row++;
-			col = 0;
+			col++;
 		}
+		row++;
+		col = 0;
 	}
-
 }
 
-int		checkafter(int arr[4], char **result, int row, int col)
+int		check_after(int arr[4], char **result, int row, int col)
 {
-	int el;
+	int htag;
 	int start_col;
 
-	el = 1;
+	htag = 1;
 	start_col = col;
-	while (el != 4)
+	while (htag != 4)
 	{
-		if (arr[el] / 10 != arr[el - 1] / 10)
+		if (arr[htag] / 10 != arr[htag - 1] / 10)
 		{
 			if (++row > 3)
 				return (-1);
-			//if (((arr[el] - arr[el - 1]) % 10) > 1) // mozam i ternary op za da zastedam red
-			//	col = start_col + ;
 		}
-		col = (arr[el] - arr[0]) % 10 + start_col;
-		//col += (arr[el] - arr[el - 1]) % 10;
-		
+		col = (arr[htag] % 10) - (arr[0] % 10) + start_col;
+		if (col > 3 || col < 0)
+			return (-1);
 		if (result[row][col] != '\0') // or is letter /alpha
 			return (-1);
-		el++;
+		htag++;
 	}
 	return (0);
+}
+
+int		get_score(int arr[4], int row, int col)
+{
+	int			htag;
+	int			score;
+	int			start_col;
+
+	score = row + col;
+	htag = 1;
+	start_col = 0;
+	while (htag != 4)
+	{
+		if (arr[htag] / 10 != arr[htag - 1] / 10)
+			row++;
+		col = (arr[htag] % 10) - (arr[0] % 10) + start_col;
+		score += row + col;
+		htag++;
+	}
+	return (score);
 }
 
 	// y = y % 5;
