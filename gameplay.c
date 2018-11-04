@@ -6,7 +6,7 @@
 /*   By: jguleski <jguleski@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/02 16:43:17 by jguleski          #+#    #+#             */
-/*   Updated: 2018/11/03 18:35:32 by jguleski         ###   ########.fr       */
+/*   Updated: 2018/11/03 21:04:00 by jguleski         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 ** i se dodavat x, zs taka sekogas prvata cifra ke e redot vtorata kolona 
 */
 
-void	play_tetris(char **tetris, char **result)
+void	play_tetris(char **tetris, t_board *board)
 {
 	int			i;
 	int			x;
@@ -38,7 +38,7 @@ void	play_tetris(char **tetris, char **result)
 			x++;
 		}
 		if (el == 4)
-			check_plays(arr, result);
+			check_plays(arr, board);
 		if (el == 4)
 			el = 0;
 		i++;
@@ -46,7 +46,7 @@ void	play_tetris(char **tetris, char **result)
 	}
 }
 
-void	check_plays(int arr[4], char **result)
+void	check_plays(int arr[4], t_board *board)
 {
 	int row;
 	int col;
@@ -54,32 +54,29 @@ void	check_plays(int arr[4], char **result)
 
 	row = 0;
 	col = 0;
-	fil.high_score = INT_MAX;
-	while (row < 4)
+	fil.best_score = INT_MAX;
+	while (row < board->side)
 	{
-		while (col < 4)
+		while (col < board->side)
 		{
-			if (result[row][col] == '.')
+			if (board->result[row][col] == '.')
 			{
-				if (check_after(arr, result, row, col) == 0)
-					if ((fil.score = get_score(arr, row, col)) < fil.high_score)
-					{
-						fil.high_score = fil.score;
-						fil.play_col = col;
-						fil.play_row = row;
-					}
+				if (check_after(arr, board, row, col) == 0)
+					get_score(arr, row, col, &fil);
 			}
 			col++;
 		}
 		row++;
 		col = 0;
 	}
-	if (fil.high_score != INT_MAX)
-		insert_piece(result, arr, fil);
+	if (fil.best_score != INT_MAX)
+		insert_piece(arr, board, fil);
+	else
+		b_printf("piece not played\n");
 	//b_printf("High score: -> row %d  columns: %d\n", fil.play_row, fil.play_col);
 }
 
-int		check_after(int arr[4], char **result, int row, int col)
+int		check_after(int arr[4], t_board *board, int row, int col)
 {
 	int htag;
 	int start_col;
@@ -90,28 +87,30 @@ int		check_after(int arr[4], char **result, int row, int col)
 	{
 		if (arr[htag] / 10 != arr[htag - 1] / 10)
 		{
-			if (++row > 3)
+			if (++row > board->side - 1)
 				return (-1);
 		}
 		col = (arr[htag] % 10) - (arr[0] % 10) + start_col;
-		if (col > 3 || col < 0)
+		if (col > board->side - 1 || col < 0)
 			return (-1);
-		if (result[row][col] != '.') // or is letter /alpha
+		if (board->result[row][col] != '.') // or is letter /alpha
 			return (-1);
 		htag++;
 	}
 	return (0);
 }
 
-int		get_score(int arr[4], int row, int col)
+void	get_score(int arr[4], int row, int col, t_fillit *fil)
 {
 	int		htag;
-	int		score;
+	size_t	score;
 	int		start_col;
 
 	score = row + col;
 	htag = 1;
 	start_col = 0;
+	fil->tem_col = col;
+	fil->tem_row = row;
 	while (htag != 4)
 	{
 		if (arr[htag] / 10 != arr[htag - 1] / 10)
@@ -120,10 +119,15 @@ int		get_score(int arr[4], int row, int col)
 		score += row + col;
 		htag++;
 	}
-	return (score + 1); // ova + 1 zs high score se inic na 0 pa da ne
+	if (score < fil->best_score)
+	{
+		fil->best_score = score;
+		fil->play_col = fil->tem_col;
+		fil->play_row = fil->tem_row;
+	}
 }
 
-void	insert_piece(char **result, int arr[4], t_fillit fil)
+void	insert_piece(int arr[4], t_board *board, t_fillit fil)
 {
 	int			htag;
 	int			start_col;
@@ -131,14 +135,14 @@ void	insert_piece(char **result, int arr[4], t_fillit fil)
 
 	//c = 'A';
 	htag = 1;
-	result[fil.play_row][fil.play_col] = c;
+	board->result[fil.play_row][fil.play_col] = c;
 	start_col = fil.play_col;
 	while (htag != 4)
 	{
 		if (arr[htag] / 10 != arr[htag - 1] / 10)
 			fil.play_row++;
 		fil.play_col = (arr[htag] % 10) - (arr[0] % 10) + start_col;
-		result[fil.play_row][fil.play_col] = c;
+		board->result[fil.play_row][fil.play_col] = c;
 		htag++;
 	}
 	c++;
