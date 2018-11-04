@@ -6,7 +6,7 @@
 /*   By: jguleski <jguleski@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/02 16:43:17 by jguleski          #+#    #+#             */
-/*   Updated: 2018/11/03 00:41:56 by jguleski         ###   ########.fr       */
+/*   Updated: 2018/11/03 18:35:32 by jguleski         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 
 void	play_tetris(char **tetris, char **result)
 {
-	static int	i;
+	int			i;
 	int			x;
 	int			arr[4];
 	int			el;
@@ -38,7 +38,7 @@ void	play_tetris(char **tetris, char **result)
 			x++;
 		}
 		if (el == 4)
-			check_plays(arr, result, i);
+			check_plays(arr, result);
 		if (el == 4)
 			el = 0;
 		i++;
@@ -46,29 +46,37 @@ void	play_tetris(char **tetris, char **result)
 	}
 }
 
-void	check_plays(int arr[4], char **result, int test)
+void	check_plays(int arr[4], char **result)
 {
 	int row;
 	int col;
-	//t_fillit	fil;
+	t_fillit	fil;
 
 	row = 0;
 	col = 0;
+	fil.high_score = INT_MAX;
 	while (row < 4)
 	{
 		while (col < 4)
 		{
-			if (result[row][col] == '\0')
+			if (result[row][col] == '.')
 			{
 				if (check_after(arr, result, row, col) == 0)
-					b_printf("Test br:%d -> row %d  columns: %d\n",test, row, col);
-					//score = get_score(arr[4], result, row, col);
+					if ((fil.score = get_score(arr, row, col)) < fil.high_score)
+					{
+						fil.high_score = fil.score;
+						fil.play_col = col;
+						fil.play_row = row;
+					}
 			}
 			col++;
 		}
 		row++;
 		col = 0;
 	}
+	if (fil.high_score != INT_MAX)
+		insert_piece(result, arr, fil);
+	//b_printf("High score: -> row %d  columns: %d\n", fil.play_row, fil.play_col);
 }
 
 int		check_after(int arr[4], char **result, int row, int col)
@@ -88,7 +96,7 @@ int		check_after(int arr[4], char **result, int row, int col)
 		col = (arr[htag] % 10) - (arr[0] % 10) + start_col;
 		if (col > 3 || col < 0)
 			return (-1);
-		if (result[row][col] != '\0') // or is letter /alpha
+		if (result[row][col] != '.') // or is letter /alpha
 			return (-1);
 		htag++;
 	}
@@ -97,9 +105,9 @@ int		check_after(int arr[4], char **result, int row, int col)
 
 int		get_score(int arr[4], int row, int col)
 {
-	int			htag;
-	int			score;
-	int			start_col;
+	int		htag;
+	int		score;
+	int		start_col;
 
 	score = row + col;
 	htag = 1;
@@ -112,18 +120,29 @@ int		get_score(int arr[4], int row, int col)
 		score += row + col;
 		htag++;
 	}
-	return (score);
+	return (score + 1); // ova + 1 zs high score se inic na 0 pa da ne
 }
 
-	// y = y % 5;
+void	insert_piece(char **result, int arr[4], t_fillit fil)
+{
+	int			htag;
+	int			start_col;
+	static char	c = 'A';
 
-	// x = 0;
-	// while (y < 4)
-	// {
-	// 	if (result[y][x] == '\0')
-	// 	{
-	// 		(check after)
-	// 	}
-	// 	x++;
-	// 	if (x == )
-	// }
+	//c = 'A';
+	htag = 1;
+	result[fil.play_row][fil.play_col] = c;
+	start_col = fil.play_col;
+	while (htag != 4)
+	{
+		if (arr[htag] / 10 != arr[htag - 1] / 10)
+			fil.play_row++;
+		fil.play_col = (arr[htag] % 10) - (arr[0] % 10) + start_col;
+		result[fil.play_row][fil.play_col] = c;
+		htag++;
+	}
+	c++;
+}
+
+		// x = (arr[htag] % 10) + fil.play_col;
+		// y = (arr[htag] / 10) + fil.play_row;
