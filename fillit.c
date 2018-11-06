@@ -6,7 +6,7 @@
 /*   By: jguleski <jguleski@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/02 14:50:38 by jguleski          #+#    #+#             */
-/*   Updated: 2018/11/05 19:17:01 by jguleski         ###   ########.fr       */
+/*   Updated: 2018/11/05 20:37:37 by jguleski         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,51 +61,12 @@ int	main(int argc, char **argv)
 
 	solutions = NULL;
 	find_solution(res_board, playlist, NULL, &solutions);
-	fill_board(solutions, res_board);
-	// while (i < res_board->side)
-	// 	b_printf("%s\n", res_board->result[i++]);
+	
+	fill_board(find_best_solution(solutions), res_board);
+	while (i < res_board->side)
+		b_printf("%s\n", res_board->result[i++]);
 	return (0);
 	
-}
-
-void	fill_board(t_filist	*solutions, t_board *board)
-{
-	int y;
-	int x;
-	int i;
-	int z;
-
-	z = 0;
-	i = 0;
-	solutions = solutions->next;
-	while (solutions)
-	{
-		if (solutions->t_id == '$')
-		{
-			while (z < board->side)
-				b_printf("%s\n", board->result[z++]);
-			z = 0;
-			while (i < board->side)
-			{
-				x = 0;
-				while (x < board->side)
-					board->result[i][x++] = '.';
-				i++;
-			}
-			i = 0;
-			solutions = solutions->next;
-			b_printf("\n");
-		}
-		while (i < 4)
-		{
-			x = solutions->cords[0][i];
-			y = solutions->cords[1][i];
-			board->result[y][x] = solutions->t_id;
-			i++;
-		}
-		solutions = solutions->next;
-		i = 0;
-	}
 }
 
 static void	check_hashtags(const char **tetris, int line)

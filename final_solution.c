@@ -6,7 +6,7 @@
 /*   By: jguleski <jguleski@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/05 19:32:24 by jguleski          #+#    #+#             */
-/*   Updated: 2018/11/05 19:53:18 by jguleski         ###   ########.fr       */
+/*   Updated: 2018/11/05 20:37:30 by jguleski         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,10 +53,12 @@ void	fill_board(t_filist	*solutions, t_board *board)
 	int x;
 	int i;
 	int z;
+	t_filist *start;
 
 	z = 0;
 	i = 0;
 	solutions = solutions->next;
+	start = solutions;
 	while (solutions && solutions->t_id != '$')
 	{
 		// if (solutions->t_id == '$')
@@ -85,4 +87,33 @@ void	fill_board(t_filist	*solutions, t_board *board)
 		solutions = solutions->next;
 		i = 0;
 	}
+	trim_solution(start, board);
+}
+
+void	trim_solution(t_filist	*solution, t_board *board)
+{
+	int i;
+	int largest_x;
+	int largest_y;
+
+	largest_x = 0;
+	largest_y = 0;
+	while (solution && solution->t_id != '$')
+	{
+		i = 0;
+		while (i < 4)
+		{
+			if (solution->cords[0][i] > largest_x)
+				largest_x = solution->cords[0][i];
+			if (solution->cords[1][i] > largest_y)
+				largest_y = solution->cords[1][i];
+			i++;
+		}
+		solution = solution->next;
+	}
+	i = -1;
+	board->result[largest_y + 1] = NULL;
+	while (board->result[++i])
+		board->result[i][largest_x + 1] = '\0';
+	board->side = largest_y + 1;
 }

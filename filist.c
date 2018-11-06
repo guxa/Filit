@@ -6,7 +6,7 @@
 /*   By: jguleski <jguleski@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/03 23:41:07 by jguleski          #+#    #+#             */
-/*   Updated: 2018/11/05 18:40:30 by jguleski         ###   ########.fr       */
+/*   Updated: 2018/11/05 20:58:33 by jguleski         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,17 +18,14 @@ void	store_play(t_board *board, t_filist **main_list)
 	int	i;
 	int x;
 	t_filist *newplay;
-	static int count = 0;
 
 	if ((newplay = malloc(sizeof(t_filist))) == NULL)
 		exit_app("Malloc failed");
-	newplay->score = 0;
 	i = 0;
 	x = 0;
 	while (i != 4)
 	{
 		newplay->cords[x][i] = board->cords[x][i];
-		newplay->score += board->cords[x][i];	//mozda nemat potreba ovde score da go sum
 		i++;
 		if (i == 4 && x++ == 0)
 			i = 0;
@@ -42,7 +39,6 @@ void	store_play(t_board *board, t_filist **main_list)
 		*main_list = newplay;
 		newplay->down = NULL;
 	}
-	count++; //ova cisto za testiranje
 }
 
 void	put_down(t_filist *main_list, t_filist *new)
