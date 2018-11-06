@@ -6,7 +6,7 @@
 /*   By: jguleski <jguleski@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/03 23:41:07 by jguleski          #+#    #+#             */
-/*   Updated: 2018/11/05 20:58:33 by jguleski         ###   ########.fr       */
+/*   Updated: 2018/11/05 23:17:08 by jguleski         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,22 +64,24 @@ void	put_down(t_filist *main_list, t_filist *new)
 
 void	find_solution(t_board *board, t_filist *playlist, t_filist *org, t_filist **solutions)
 {
-	//static t_filist	*solutions = NULL;
+	int			flag;
 	t_filist	*temp;
 
 	temp = playlist;
 	while (temp)
 	{
 		if (org)
-			compare_prev_solution(&org, temp, solutions);
-		if (compare_cords (*solutions, temp) == 0)
+			flag = compare_prev_solution(&org, temp, solutions);
+		else
+			flag = 1;
+		if (flag && compare_cords(*solutions, temp) == 0)
 		{
 			if (copy_node(solutions, temp, board->pieces))
 				org = *solutions;
 			find_solution(board, playlist->next, org, solutions);
 		}
-	// if (temp->t_id == 'A')
-	// 	org = NULL;
+		if (temp->t_id == 'H')
+			org = NULL;
 		temp = temp->down;
 	}
 	clean_garbage(solutions);
@@ -97,7 +99,7 @@ void	clean_garbage(t_filist	**solution)
 		*solution = (*solution)->next;
 		temp->next = NULL;
 		free (temp);
-		temp = *solution;
+		//temp = *solution;
 	}
 }
 
@@ -169,7 +171,7 @@ int		add_separator(t_filist **solutions)
 	return (1);
 }
 
-void	compare_prev_solution(t_filist **org, t_filist *new_elem, t_filist **sol)
+int		compare_prev_solution(t_filist **org, t_filist *new_elem, t_filist **sol)
 {
 	t_filist *temp;
 
@@ -187,7 +189,10 @@ void	compare_prev_solution(t_filist **org, t_filist *new_elem, t_filist **sol)
 			copy_node(sol, temp, -1);
 			temp = temp->next;
 		}
+		return (1);
 	}
+	else
+		return (0);
 }
 
 void	copy_node2(t_filist **dest, t_filist *source)
@@ -210,7 +215,6 @@ void	copy_node2(t_filist **dest, t_filist *source)
 			x = 0;
 	}
 	new_node->t_id = source->t_id;
-	
 	cur = *dest;
 	prev = NULL;
 	while (cur->t_id != '$')
