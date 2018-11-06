@@ -6,7 +6,7 @@
 /*   By: jguleski <jguleski@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/03 23:41:07 by jguleski          #+#    #+#             */
-/*   Updated: 2018/11/05 15:26:24 by jguleski         ###   ########.fr       */
+/*   Updated: 2018/11/05 18:40:30 by jguleski         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ void	store_play(t_board *board, t_filist **main_list)
 			i = 0;
 	}
 	newplay->t_id = board->t_id;
-	if (newplay->t_id == (*main_list)->t_id)
+	if ((*main_list) && (newplay->t_id == (*main_list)->t_id))
 		put_down(*main_list, newplay);
 	else
 	{
@@ -66,32 +66,43 @@ void	put_down(t_filist *main_list, t_filist *new)
 ** completed solution. if B2 is good with A0, it copies A0, then B2 is added, and contines to C ...
 */
 
-void	find_solution(t_board *board, t_filist *playlist, t_filist	*org)
+void	find_solution(t_board *board, t_filist *playlist, t_filist *org, t_filist **solutions)
 {
-	static t_filist	*solutions = NULL;
+	//static t_filist	*solutions = NULL;
 	t_filist	*temp;
 
 	temp = playlist;
 	while (temp)
 	{
 		if (org)
-			compare_prev_solution(&org, temp);
-		if (compare_cords (solutions, temp) == 0)
+			compare_prev_solution(&org, temp, solutions);
+		if (compare_cords (*solutions, temp) == 0)
 		{
-			org = copy_node(&solutions, temp, board->pieces);
-			find_solution(board, playlist->next, org);
+			if (copy_node(solutions, temp, board->pieces))
+				org = *solutions;
+			find_solution(board, playlist->next, org, solutions);
 		}
 	// if (temp->t_id == 'A')
 	// 	org = NULL;
 		temp = temp->down;
 	}
-	clean_garbage()
+	clean_garbage(solutions);
 }
 
-void	clean_garbage(t_filist	*solution)
+void	clean_garbage(t_filist	**solution)
 {
-
-
+	int			flag;
+	t_filist	*temp;
+	
+	flag = 0;
+	temp = *solution;
+	if (temp && temp->t_id != '$')
+	{
+		*solution = (*solution)->next;
+		temp->next = NULL;
+		free (temp);
+		temp = *solution;
+	}
 }
 
 int	compare_cords(t_filist	*solution, t_filist	*new_elem)
@@ -116,11 +127,12 @@ int	compare_cords(t_filist	*solution, t_filist	*new_elem)
 			x++;
 		}
 		solution = solution->next;
+		x = 0;
 	}
 	return (0);
 }
 
-t_filist	*copy_node(t_filist **dest, t_filist *source, int pieces)
+int		copy_node(t_filist **dest, t_filist *source, int pieces)
 {
 	int x;
 	int y;
@@ -137,7 +149,7 @@ t_filist	*copy_node(t_filist **dest, t_filist *source, int pieces)
 		if (x == 4 && y++ == 0)
 			x = 0;
 	}
-	new_node->t_id = source->t_id;
+	new_node->t_id = source->t_id;	//score mozda ne trebit ovde da se kopirat, na kraj samo da se sum koordinatite
 	new_node->next = *dest;
 	*dest = new_node;
 	x = 0;
@@ -146,11 +158,10 @@ t_filist	*copy_node(t_filist **dest, t_filist *source, int pieces)
 		new_node = new_node->next;
 		x++;
 	}
-	return (x == pieces ? add_separator(dest) : NULL);
-	//score mozda ne trebit ovde da se kopirat, na kraj samo da se sum koordinatite
+	return (x == pieces ? add_separator(dest) : 0);
 }
 
-t_filist	*add_separator(t_filist **solutions)
+int		add_separator(t_filist **solutions)
 {
 	t_filist *new_node;
 	if (((new_node = malloc(sizeof(t_filist))) == NULL) || !(*solutions))
@@ -159,10 +170,10 @@ t_filist	*add_separator(t_filist **solutions)
 	new_node->down = NULL;
 	new_node->next = *solutions;
 	*solutions = new_node;
-	return (*solutions);
+	return (1);
 }
 
-void	compare_prev_solution(t_filist **org, t_filist *new_elem)
+void	compare_prev_solution(t_filist **org, t_filist *new_elem, t_filist **sol)
 {
 	t_filist *temp;
 
@@ -174,9 +185,46 @@ void	compare_prev_solution(t_filist **org, t_filist *new_elem)
 		temp = temp->next;
 	temp = temp->next;
 	if (compare_cords(temp, new_elem) == 0)
+	{
 		while (temp && temp->t_id != '$')
 		{
-			copy_node(org, temp, -1);
+			copy_node(sol, temp, -1);
 			temp = temp->next;
 		}
+	}
+}
+
+void	copy_node2(t_filist **dest, t_filist *source)
+{
+	int x;
+	int y;
+	t_filist *new_node;
+	t_filist *prev;
+	t_filist *cur;
+
+	x = 0;
+	y = 0;
+	if (!source || (new_node = malloc(sizeof(t_filist))) == NULL)
+		exit_app("Malloc failed inside copy_node");
+	while (x != 4)
+	{
+		new_node->cords[y][x] = source->cords[y][x];
+		x++;
+		if (x == 4 && y++ == 0)
+			x = 0;
+	}
+	new_node->t_id = source->t_id;
+	
+	cur = *dest;
+	prev = NULL;
+	while (cur->t_id != '$')
+	{
+		prev = cur;
+		cur = cur->next;
+	}
+	if (prev)
+		prev->next = new_node;
+	else
+		*dest = new_node;
+	new_node->next = cur;
 }

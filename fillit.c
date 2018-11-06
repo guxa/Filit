@@ -6,7 +6,7 @@
 /*   By: jguleski <jguleski@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/02 14:50:38 by jguleski          #+#    #+#             */
-/*   Updated: 2018/11/03 21:14:28 by jguleski         ###   ########.fr       */
+/*   Updated: 2018/11/05 19:17:01 by jguleski         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,15 +35,19 @@ void		init_board(t_board	*board)
 			board->result[i][x++] = '.';
 		i++;
 	}
+	board->t_id = 'A';
 }
 
 int	main(int argc, char **argv)
 {
 	char	**tetris;
 	int		i;
-	t_board	*res_board;
+	t_board		*res_board;
+	t_filist	*playlist;
+	t_filist	*solutions;
 
 	i = 0;
+	playlist = NULL;
 	if (argc != 2)
 		exit_app("usage: bla bla");
 	res_board = malloc(sizeof(t_board));
@@ -53,12 +57,55 @@ int	main(int argc, char **argv)
 	parse_tetris(argv[1], tetris, res_board);
 	init_board(res_board);
 
-	play_tetris(tetris, res_board);
+	play_tetris(tetris, res_board, &playlist);
 
-	while (i < res_board->side)
-		b_printf("%s\n", res_board->result[i++]);
+	solutions = NULL;
+	find_solution(res_board, playlist, NULL, &solutions);
+	fill_board(solutions, res_board);
+	// while (i < res_board->side)
+	// 	b_printf("%s\n", res_board->result[i++]);
 	return (0);
 	
+}
+
+void	fill_board(t_filist	*solutions, t_board *board)
+{
+	int y;
+	int x;
+	int i;
+	int z;
+
+	z = 0;
+	i = 0;
+	solutions = solutions->next;
+	while (solutions)
+	{
+		if (solutions->t_id == '$')
+		{
+			while (z < board->side)
+				b_printf("%s\n", board->result[z++]);
+			z = 0;
+			while (i < board->side)
+			{
+				x = 0;
+				while (x < board->side)
+					board->result[i][x++] = '.';
+				i++;
+			}
+			i = 0;
+			solutions = solutions->next;
+			b_printf("\n");
+		}
+		while (i < 4)
+		{
+			x = solutions->cords[0][i];
+			y = solutions->cords[1][i];
+			board->result[y][x] = solutions->t_id;
+			i++;
+		}
+		solutions = solutions->next;
+		i = 0;
+	}
 }
 
 static void	check_hashtags(const char **tetris, int line)
@@ -117,8 +164,9 @@ void	parse_tetris(const char *filepath, char **tetris, t_board *board)
 		i++;
 	}
 	board->side = ft_sqrt(((i + 1) / 5) * 4);
+	board->pieces = ((i + 1) / 5);
 	// if (((i + 1) / 5 != 4) && ((i + 1) / 5 != 1))
-	// 	board->side++;
+	 	board->side++;
 	tetris[i] = NULL;
 	close(fd);
 }
