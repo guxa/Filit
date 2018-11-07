@@ -6,7 +6,7 @@
 /*   By: jguleski <jguleski@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/02 16:43:17 by jguleski          #+#    #+#             */
-/*   Updated: 2018/11/03 21:04:00 by jguleski         ###   ########.fr       */
+/*   Updated: 2018/11/06 00:54:19 by jguleski         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 ** i se dodavat x, zs taka sekogas prvata cifra ke e redot vtorata kolona 
 */
 
-void	play_tetris(char **tetris, t_board *board)
+void	play_tetris(char **tetris, t_board *board, t_filist **playlist)
 {
 	int			i;
 	int			x;
@@ -38,15 +38,17 @@ void	play_tetris(char **tetris, t_board *board)
 			x++;
 		}
 		if (el == 4)
-			check_plays(arr, board);
-		if (el == 4)
+		{
+			check_plays(arr, board, playlist);
 			el = 0;
+			board->t_id += 1;
+		}
 		i++;
 		x = 0;
 	}
 }
 
-void	check_plays(int arr[4], t_board *board)
+void	check_plays(int arr[4], t_board *board, t_filist **playlist)
 {
 	int row;
 	int col;
@@ -59,30 +61,32 @@ void	check_plays(int arr[4], t_board *board)
 	{
 		while (col < board->side)
 		{
-			if (board->result[row][col] == '.')
-			{
+			//if (board->result[row][col] == '.')
+		//	{
 				if (check_after(arr, board, row, col) == 0)
-					get_score(arr, row, col, &fil);
-			}
+					store_play(board, playlist);
+					//get_score(arr, row, col, &fil);
+			//}
 			col++;
 		}
 		row++;
 		col = 0;
 	}
-	if (fil.best_score != INT_MAX)
-		insert_piece(arr, board, fil);
-	else
-		b_printf("piece not played\n");
+	// if (fil.best_score != INT_MAX)
+	// 	insert_piece(arr, board, fil);
+	// else
+	// 	b_printf("piece not played\n");
 	//b_printf("High score: -> row %d  columns: %d\n", fil.play_row, fil.play_col);
 }
 
 int		check_after(int arr[4], t_board *board, int row, int col)
 {
 	int htag;
-	int start_col;
+	//int start_col;
 
 	htag = 1;
-	start_col = col;
+	board->cords[0][0] = row;
+	board->cords[1][0] = col;
 	while (htag != 4)
 	{
 		if (arr[htag] / 10 != arr[htag - 1] / 10)
@@ -90,63 +94,64 @@ int		check_after(int arr[4], t_board *board, int row, int col)
 			if (++row > board->side - 1)
 				return (-1);
 		}
-		col = (arr[htag] % 10) - (arr[0] % 10) + start_col;
+		col = (arr[htag] % 10) - (arr[0] % 10) + board->cords[1][0];
 		if (col > board->side - 1 || col < 0)
 			return (-1);
-		if (board->result[row][col] != '.') // or is letter /alpha
-			return (-1);
+		// if (board->result[row][col] != '.') // or is letter /alpha
+		// 	return (-1);
+		board->cords[0][htag] = row;
+		board->cords[1][htag] = col;
 		htag++;
 	}
 	return (0);
 }
 
-void	get_score(int arr[4], int row, int col, t_fillit *fil)
-{
-	int		htag;
-	size_t	score;
-	int		start_col;
+// void	get_score(int arr[4], int row, int col, t_fillit *fil)
+// {
+// 	int		htag;
+// 	size_t	score;
+// 	int		start_col;
 
-	score = row + col;
-	htag = 1;
-	start_col = 0;
-	fil->tem_col = col;
-	fil->tem_row = row;
-	while (htag != 4)
-	{
-		if (arr[htag] / 10 != arr[htag - 1] / 10)
-			row++;
-		col = (arr[htag] % 10) - (arr[0] % 10) + start_col;
-		score += row + col;
-		htag++;
-	}
-	if (score < fil->best_score)
-	{
-		fil->best_score = score;
-		fil->play_col = fil->tem_col;
-		fil->play_row = fil->tem_row;
-	}
-}
+// 	score = row + col;
+// 	htag = 1;
+// 	start_col = 0;
+// 	fil->tem_col = col;
+// 	fil->tem_row = row;
+// 	while (htag != 4)
+// 	{
+// 		if (arr[htag] / 10 != arr[htag - 1] / 10)
+// 			row++;
+// 		col = (arr[htag] % 10) - (arr[0] % 10) + start_col;
+// 		score += row + col;
+// 		htag++;
+// 	}
+// 	if (score < fil->best_score)
+// 	{
+// 		fil->best_score = score;
+// 		fil->play_col = fil->tem_col;
+// 		fil->play_row = fil->tem_row;
+// 	}
+// }
 
-void	insert_piece(int arr[4], t_board *board, t_fillit fil)
-{
-	int			htag;
-	int			start_col;
-	static char	c = 'A';
+// void	insert_piece(int arr[4], t_board *board, t_fillit fil)
+// {
+// 	int			htag;
+// 	int			start_col;
+// 	static char	c = 'A';
 
-	//c = 'A';
-	htag = 1;
-	board->result[fil.play_row][fil.play_col] = c;
-	start_col = fil.play_col;
-	while (htag != 4)
-	{
-		if (arr[htag] / 10 != arr[htag - 1] / 10)
-			fil.play_row++;
-		fil.play_col = (arr[htag] % 10) - (arr[0] % 10) + start_col;
-		board->result[fil.play_row][fil.play_col] = c;
-		htag++;
-	}
-	c++;
-}
+// 	htag = 1;
+// 	board->result[fil.play_row][fil.play_col] = c;
+// 	start_col = fil.play_col;
+// 	while (htag != 4)
+// 	{
+// 		if (arr[htag] / 10 != arr[htag - 1] / 10)
+// 			fil.play_row++;
+// 		fil.play_col = (arr[htag] % 10) - (arr[0] % 10) + start_col;
+// 		board->result[fil.play_row][fil.play_col] = c;
+// 		htag++;
+// 	}
+// 	c++;
+// }
 
 		// x = (arr[htag] % 10) + fil.play_col;
 		// y = (arr[htag] / 10) + fil.play_row;

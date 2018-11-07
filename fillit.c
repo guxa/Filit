@@ -6,7 +6,7 @@
 /*   By: jguleski <jguleski@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/02 14:50:38 by jguleski          #+#    #+#             */
-/*   Updated: 2018/11/05 20:37:37 by jguleski         ###   ########.fr       */
+/*   Updated: 2018/11/06 16:57:05 by jguleski         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ void		init_board(t_board	*board)
 
 	i = 0;
 	x = 0;
-	if ((board->result = malloc(sizeof(char *) * board->side)) == NULL)
+	if ((board->result = malloc(sizeof(char *) * board->side + 1)) == NULL)
 		exit_app("Malloc inside init_board failed");
 	while (i < board->side)
 	{
@@ -35,6 +35,7 @@ void		init_board(t_board	*board)
 			board->result[i][x++] = '.';
 		i++;
 	}
+	board->result[i] = NULL;
 	board->t_id = 'A';
 }
 
@@ -45,6 +46,7 @@ int	main(int argc, char **argv)
 	t_board		*res_board;
 	t_filist	*playlist;
 	t_filist	*solutions;
+	t_filist	*or;
 
 	i = 0;
 	playlist = NULL;
@@ -60,28 +62,32 @@ int	main(int argc, char **argv)
 	play_tetris(tetris, res_board, &playlist);
 
 	solutions = NULL;
-	find_solution(res_board, playlist, NULL, &solutions);
+	or = NULL;
+	//find_solution(res_board, playlist, &or, &solutions);
 	
-	fill_board(find_best_solution(solutions), res_board);
+	//fill_board(find_best_solution(solutions), res_board);
 	while (i < res_board->side)
 		b_printf("%s\n", res_board->result[i++]);
 	return (0);
 	
 }
 
-static void	check_hashtags(const char **tetris, int line)
+static void	check_hashtags(const char **tetris, int line, int start_line)
 {
-	int	start;
 	int i;
 	int	hashtags;
+	int sides;
 
 	i = 0;
 	hashtags = 0;
-	start = line - 3;
-	while (line >= start)
+	sides = 0;
+	while (line >= start_line)
 	{
 		if (tetris[line][i] == '#')
+		{
 			hashtags++;
+			sides += check_sides(tetris, i, line, start_line);
+		}
 		else if (tetris[line][i] != '.')
 			exit_app("error");
 		i++;
@@ -91,8 +97,24 @@ static void	check_hashtags(const char **tetris, int line)
 			i = 0;
 		}
 	}
-	if (hashtags != 4)
+	if (hashtags != 4 || sides < 6)
 		exit_app("error");
+}
+
+int		check_sides(const char **tetris, int pos, int line, int start)
+{
+	int sides;
+
+	sides = 0;
+	if (pos != 0 && tetris[line][pos - 1] == '#')
+		sides++;
+	if (pos < 3 && tetris[line][pos + 1] == '#')
+		sides++;
+	if (line != start && tetris[line - 1][pos] == '#')
+		sides++;
+	if ((line + 2) % 5 != 0 && tetris[line + 1][pos] == '#')
+		sides++;
+	return (sides);
 }
 
 /*
@@ -111,23 +133,24 @@ void	parse_tetris(const char *filepath, char **tetris, t_board *board)
 	int i;
 
 	i = 0;
-	fd = open(filepath, O_RDONLY, S_IRUSR);
+	if ((fd = open(filepath, O_RDONLY, S_IRUSR)) < 0)
+		exit_app("File doesn't exist");
 	while (get_next_line(fd, &line))
 	{
 		if (((i + 1) % 5 == 0) && ft_strequ(line, "") == 0)
-			exit_app("error Tetriminos not valid");
+			exit_app("error");
 		if (((i + 1) % 5 != 0) && ft_strlen(line) != 4)
-			exit_app("error Tetriminos not valid");
+			exit_app("error");
 		tetris[i] = ft_strdup(line);
-		if ((i + 2) % 5 == 0 || i == 3)
-			check_hashtags((const char**)tetris, i);
+		if ((i + 2) % 5 == 0)
+			check_hashtags((const char**)tetris, i, i - 3);
 		ft_memdel((void**)&line);
 		i++;
 	}
-	board->side = ft_sqrt(((i + 1) / 5) * 4);
+	if ((i + 1) % 5 != 0)
+		exit_app("error");
+	board->side = ft_sqrt(((i + 1) / 5) * 4) + 1; // ova fiksno + 1 mozit da e problem
 	board->pieces = ((i + 1) / 5);
-	// if (((i + 1) / 5 != 4) && ((i + 1) / 5 != 1))
-	 	board->side++;
 	tetris[i] = NULL;
 	close(fd);
 }
