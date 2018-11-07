@@ -6,7 +6,7 @@
 /*   By: jguleski <jguleski@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/03 23:41:07 by jguleski          #+#    #+#             */
-/*   Updated: 2018/11/05 23:17:08 by jguleski         ###   ########.fr       */
+/*   Updated: 2018/11/06 20:30:37 by jguleski         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,27 +31,44 @@ void	store_play(t_board *board, t_filist **main_list)
 			i = 0;
 	}
 	newplay->t_id = board->t_id;
-	if ((*main_list) && (newplay->t_id == (*main_list)->t_id))
-		put_down(*main_list, newplay);
-	else
-	{
-		newplay->next = *main_list;
-		*main_list = newplay;
-		newplay->down = NULL;
-	}
+	newplay->next = NULL;
+	newplay->down = NULL;
+	insert_in_list(main_list, newplay);
 }
 
-void	put_down(t_filist *main_list, t_filist *new)
+void	insert_in_list(t_filist **main_list, t_filist *newplay)
 {
 	t_filist *temp;
 
-	temp = main_list;
-	while (temp->down)
-		temp = temp->down;
-	temp->down = new;
-	new->next = NULL;
-	new->down = NULL;
+	temp = *main_list;
+	if (*main_list == NULL)
+	{
+		*main_list = newplay;
+		return ;
+	}
+	while (temp->next)
+		temp = temp->next;
+	if (temp->t_id == newplay->t_id)
+	{
+		while (temp->down)
+			temp = temp->down;
+		temp->down = newplay;
+	}
+	else
+		temp->next = newplay;
 }
+
+// void	put_down(t_filist *main_list, t_filist *new)
+// {
+// 	t_filist *temp;
+
+// 	temp = main_list;
+// 	while (temp->down)
+// 		temp = temp->down;
+// 	temp->down = new;
+// 	new->next = NULL; // ova ne mi trebit sega
+// 	new->down = NULL; // i ova isto
+// }
 
 /*
 ** Gets the first valid play from figure A, then goes to the next figure, checks with B0
@@ -62,29 +79,31 @@ void	put_down(t_filist *main_list, t_filist *new)
 ** completed solution. if B2 is good with A0, it copies A0, then B2 is added, and contines to C ...
 */
 
-void	find_solution(t_board *board, t_filist *playlist, t_filist *org, t_filist **solutions)
+int		find_solution(t_board *board, t_filist *playlist, t_filist **org, t_filist **solutions)
 {
-	int			flag;
+	//int			flag;
 	t_filist	*temp;
 
 	temp = playlist;
 	while (temp)
 	{
-		if (org)
-			flag = compare_prev_solution(&org, temp, solutions);
-		else
-			flag = 1;
-		if (flag && compare_cords(*solutions, temp) == 0)
+		// // if (*org)
+		// // 	flag = compare_prev_solution(org, temp, solutions);
+		// else
+		// 	flag = 1;
+		if (compare_cords(*solutions, temp) == 0)
 		{
 			if (copy_node(solutions, temp, board->pieces))
-				org = *solutions;
-			find_solution(board, playlist->next, org, solutions);
+				return (1);//*org = *solutions;
+			if (find_solution(board, playlist->next, org, solutions))
+				return (1);
 		}
 		if (temp->t_id == 'H')
 			org = NULL;
 		temp = temp->down;
 	}
 	clean_garbage(solutions);
+	return (0);
 }
 
 void	clean_garbage(t_filist	**solution)
@@ -186,9 +205,10 @@ int		compare_prev_solution(t_filist **org, t_filist *new_elem, t_filist **sol)
 	{
 		while (temp && temp->t_id != '$')
 		{
-			copy_node(sol, temp, -1);
+			copy_node2(sol, temp);
 			temp = temp->next;
 		}
+		*org = NULL;
 		return (1);
 	}
 	else

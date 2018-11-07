@@ -6,7 +6,7 @@
 /*   By: jguleski <jguleski@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/02 16:43:17 by jguleski          #+#    #+#             */
-/*   Updated: 2018/11/06 00:54:19 by jguleski         ###   ########.fr       */
+/*   Updated: 2018/11/06 20:26:05 by jguleski         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,11 +52,10 @@ void	check_plays(int arr[4], t_board *board, t_filist **playlist)
 {
 	int row;
 	int col;
-	t_fillit	fil;
+	//t_fillit	fil;
 
 	row = 0;
 	col = 0;
-	fil.best_score = INT_MAX;
 	while (row < board->side)
 	{
 		while (col < board->side)
@@ -104,6 +103,66 @@ int		check_after(int arr[4], t_board *board, int row, int col)
 		htag++;
 	}
 	return (0);
+}
+
+void	search_for_sol(t_board *board, t_filist **playlist, t_filist **solutions, char **tetris)
+{
+
+	while (find_solution(board, *playlist, NULL, solutions) == 0)
+	{
+		board->side++;
+		new_surface(board);
+		clean_playlist(playlist);
+		//check_plays(bla, board, playlist);
+		play_tetris(tetris, board, playlist);
+	}
+
+}
+
+void	clean_playlist(t_filist **playlist)
+{
+	t_filist *temp;
+	t_filist *temp_d;
+
+	temp_d = (*playlist)->down;
+	while (temp_d)
+	{
+		temp = temp_d;
+		temp_d = temp_d->down;
+		temp->down = NULL;
+		free(temp);
+		temp = NULL;
+	}
+	while(*playlist)
+	{
+		temp = *playlist;
+		*playlist = (*playlist)->next;
+		//temp->next = NULL;
+		free (temp);
+		temp = NULL;
+	}
+}
+
+void	new_surface(t_board *board)
+{
+	int i;
+	int x;
+
+	i = 0;
+	x = 0;
+	while (i < board->side)
+		free(board->result[i++]);
+	i = 0;
+	while (i < board->side)
+	{
+		board->result[i] = ft_strnew(board->side); // not protected
+		x = 0;
+		while (x < board->side)
+			board->result[i][x++] = '.';
+		i++;
+	}
+	board->result[board->side] = NULL;
+	board->t_id = 'A';
 }
 
 // void	get_score(int arr[4], int row, int col, t_fillit *fil)
