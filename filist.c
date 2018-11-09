@@ -6,7 +6,7 @@
 /*   By: jguleski <jguleski@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/03 23:41:07 by jguleski          #+#    #+#             */
-/*   Updated: 2018/11/06 20:30:37 by jguleski         ###   ########.fr       */
+/*   Updated: 2018/11/06 22:51:21 by jguleski         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,9 @@
 
 void	store_play(t_board *board, t_filist **main_list)
 {
-	int	i;
-	int x;
-	t_filist *newplay;
+	int			i;
+	int			x;
+	t_filist	*newplay;
 
 	if ((newplay = malloc(sizeof(t_filist))) == NULL)
 		exit_app("Malloc failed");
@@ -58,193 +58,28 @@ void	insert_in_list(t_filist **main_list, t_filist *newplay)
 		temp->next = newplay;
 }
 
-// void	put_down(t_filist *main_list, t_filist *new)
-// {
-// 	t_filist *temp;
-
-// 	temp = main_list;
-// 	while (temp->down)
-// 		temp = temp->down;
-// 	temp->down = new;
-// 	new->next = NULL; // ova ne mi trebit sega
-// 	new->down = NULL; // i ova isto
-// }
-
-/*
-** Gets the first valid play from figure A, then goes to the next figure, checks with B0
-** if it's not valid, it goes down, checks with B1, if it's valid, stores it and goes to next
-** C0, if good adds it to list, if no C element is good it deletes the stored elements from the list.
-** If C0 was good it is added and has a complete solution {A0;B1;C0} then it adds a separator in the list,
-** and continues from B2, then org will be init. And it will compare B2 with figure before it in the
-** completed solution. if B2 is good with A0, it copies A0, then B2 is added, and contines to C ...
-*/
-
-int		find_solution(t_board *board, t_filist *playlist, t_filist **org, t_filist **solutions)
+void	fill_board(t_filist *solutions, t_board *board)
 {
-	//int			flag;
-	t_filist	*temp;
+	int			y;
+	int			x;
+	int			i;
+	int			z;
+	t_filist	*start;
 
-	temp = playlist;
-	while (temp)
+	z = 0;
+	i = 0;
+	solutions = solutions->next;
+	start = solutions;
+	while (solutions && solutions->t_id != '$')
 	{
-		// // if (*org)
-		// // 	flag = compare_prev_solution(org, temp, solutions);
-		// else
-		// 	flag = 1;
-		if (compare_cords(*solutions, temp) == 0)
+		while (i < 4)
 		{
-			if (copy_node(solutions, temp, board->pieces))
-				return (1);//*org = *solutions;
-			if (find_solution(board, playlist->next, org, solutions))
-				return (1);
+			y = solutions->cords[0][i];
+			x = solutions->cords[1][i];
+			board->result[y][x] = solutions->t_id;
+			i++;
 		}
-		if (temp->t_id == 'H')
-			org = NULL;
-		temp = temp->down;
+		solutions = solutions->next;
+		i = 0;
 	}
-	clean_garbage(solutions);
-	return (0);
-}
-
-void	clean_garbage(t_filist	**solution)
-{
-	int			flag;
-	t_filist	*temp;
-	
-	flag = 0;
-	temp = *solution;
-	if (temp && temp->t_id != '$')
-	{
-		*solution = (*solution)->next;
-		temp->next = NULL;
-		free (temp);
-		//temp = *solution;
-	}
-}
-
-int	compare_cords(t_filist	*solution, t_filist	*new_elem)
-{
-	int	x;
-	int y;
-
-	x = 0;
-	y = 0;
-	while (solution && solution->t_id != '$') // $ ke separator
-	{
-		while (x != 4)
-		{
-			while (y != 4)
-			{
-				if (solution->cords[0][y] == new_elem->cords[0][x]
-					&& solution->cords[1][y] == new_elem->cords[1][x])
-					return (-1);
-				y++;
-			}
-			y = 0;
-			x++;
-		}
-		solution = solution->next;
-		x = 0;
-	}
-	return (0);
-}
-
-int		copy_node(t_filist **dest, t_filist *source, int pieces)
-{
-	int x;
-	int y;
-	t_filist *new_node;
-
-	x = 0;
-	y = 0;
-	if (!source || (new_node = malloc(sizeof(t_filist))) == NULL)
-		exit_app("Malloc failed inside copy_node");
-	while (x != 4)
-	{
-		new_node->cords[y][x] = source->cords[y][x];
-		x++;
-		if (x == 4 && y++ == 0)
-			x = 0;
-	}
-	new_node->t_id = source->t_id;	//score mozda ne trebit ovde da se kopirat, na kraj samo da se sum koordinatite
-	new_node->next = *dest;
-	*dest = new_node;
-	x = 0;
-	while (new_node && new_node->t_id != '$')
-	{
-		new_node = new_node->next;
-		x++;
-	}
-	return (x == pieces ? add_separator(dest) : 0);
-}
-
-int		add_separator(t_filist **solutions)
-{
-	t_filist *new_node;
-	if (((new_node = malloc(sizeof(t_filist))) == NULL) || !(*solutions))
-		exit_app("Malloc failed inside copy_node");
-	new_node->t_id = '$';
-	new_node->down = NULL;
-	new_node->next = *solutions;
-	*solutions = new_node;
-	return (1);
-}
-
-int		compare_prev_solution(t_filist **org, t_filist *new_elem, t_filist **sol)
-{
-	t_filist *temp;
-
-	temp = *org;
-	if (temp->t_id != '$')
-		exit_app("Wrongly assigned original");
-	
-	while (temp && temp->t_id != new_elem->t_id)
-		temp = temp->next;
-	temp = temp->next;
-	if (compare_cords(temp, new_elem) == 0)
-	{
-		while (temp && temp->t_id != '$')
-		{
-			copy_node2(sol, temp);
-			temp = temp->next;
-		}
-		*org = NULL;
-		return (1);
-	}
-	else
-		return (0);
-}
-
-void	copy_node2(t_filist **dest, t_filist *source)
-{
-	int x;
-	int y;
-	t_filist *new_node;
-	t_filist *prev;
-	t_filist *cur;
-
-	x = 0;
-	y = 0;
-	if (!source || (new_node = malloc(sizeof(t_filist))) == NULL)
-		exit_app("Malloc failed inside copy_node");
-	while (x != 4)
-	{
-		new_node->cords[y][x] = source->cords[y][x];
-		x++;
-		if (x == 4 && y++ == 0)
-			x = 0;
-	}
-	new_node->t_id = source->t_id;
-	cur = *dest;
-	prev = NULL;
-	while (cur->t_id != '$')
-	{
-		prev = cur;
-		cur = cur->next;
-	}
-	if (prev)
-		prev->next = new_node;
-	else
-		*dest = new_node;
-	new_node->next = cur;
 }

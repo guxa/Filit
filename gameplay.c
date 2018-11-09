@@ -6,7 +6,7 @@
 /*   By: jguleski <jguleski@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/02 16:43:17 by jguleski          #+#    #+#             */
-/*   Updated: 2018/11/06 22:55:45 by jguleski         ###   ########.fr       */
+/*   Updated: 2018/11/08 18:29:53 by jguleski         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,35 @@ void	play_tetris(char **tetris, t_board *board, t_filist **playlist)
 			check_plays(arr, board, playlist);
 			el = 0;
 			board->t_id += 1;
+		}
+		i++;
+		x = 0;
+	}
+}
+
+void	scan_figures(char **tetris, t_board *board, t_fig *figures, t_filist **playlist)
+{
+	int			i;
+	int			x;
+	int			el;
+
+	i = 0;
+	x = 0;
+	el = 0;
+	while (figures)
+	{
+		while (tetris[i][x])
+		{
+			if (tetris[i][x] == '#')
+				figures->cords[el++] = (i % 5) * 10 + x;
+			x++;
+		}
+		if (el == 4)
+		{
+			board->t_id = figures->t_id;
+			check_plays(figures->cords, board, playlist);
+			figures = figures->next;
+			el = 0;
 		}
 		i++;
 		x = 0;

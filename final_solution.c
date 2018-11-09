@@ -6,100 +6,124 @@
 /*   By: jguleski <jguleski@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/05 19:32:24 by jguleski          #+#    #+#             */
-/*   Updated: 2018/11/06 22:17:08 by jguleski         ###   ########.fr       */
+/*   Updated: 2018/11/06 22:48:49 by jguleski         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 #include "fillit.h"
 
+/*
+** Gets the first valid play from figure A, then goes to the next figure, checks
+** with B0, if it's not valid, it goes down, checks with B1, if it's valid,
+** stores it and goes to next C0, if good adds it to list, if no C element
+** is good it deletes the stored elements from the list. If C0 was good it is
+** added and has a complete solution {A0;B1;C0} then it adds a separator
+** in the list, and continues from B2, then org will be init.
+** And it will compare B2 with figure before it in the completed solution.
+** if B2 is good with A0, it copies A0, then B2 is added, and contines to C ...
+*/
 
-// t_filist	*find_best_solution(t_filist	*solutions)
-// {
-// 	int score;
-// 	int best_score;
-// 	int i;
-// 	t_filist	*best_solution;
-// 	t_filist	*temp;
-
-// 	score = INT_MAX;
-// 	best_score = INT_MAX - 1;
-// 	while (solutions)
-// 	{
-// 		i = 0;
-// 		if (solutions->t_id == '$')
-// 		{
-// 			if (score <= best_score)
-// 			{
-// 				best_solution = temp;
-// 				best_score = score;
-// 			}
-// 			temp = solutions;
-// 			solutions = solutions->next;
-// 			score = 0;
-// 		}
-// 		while (i < 4)
-// 		{
-// 			score += solutions->cords[0][i];
-// 			score += solutions->cords[1][i++];
-// 		}
-// 		solutions = solutions->next;
-// 	}
-// 	return (best_solution);
-// }
-
-void	fill_board(t_filist	*solutions, t_board *board)
+int		find_solution(t_board *board, t_filist *playlist, t_filist **solutions)
 {
-	int y;
-	int x;
-	int i;
-	int z;
-	t_filist *start;
+	t_filist	*temp;
 
-	z = 0;
-	i = 0;
-	solutions = solutions->next;
-	start = solutions;
-	while (solutions && solutions->t_id != '$')
+	temp = playlist;
+	while (temp)
 	{
-		while (i < 4)
+		if (compare_cords(*solutions, temp) == 0)
 		{
-			y = solutions->cords[0][i];
-			x = solutions->cords[1][i];
-			board->result[y][x] = solutions->t_id;
-			i++;
+			if (copy_node(solutions, temp, board->pieces))
+				return (1);
+			if (find_solution(board, playlist->next, solutions))
+				return (1);
 		}
-		solutions = solutions->next;
-		i = 0;
+		temp = temp->down;
+	}
+	clean_garbage(solutions);
+	return (0);
+}
+
+void	clean_garbage(t_filist **solution)
+{
+	int			flag;
+	t_filist	*temp;
+
+	flag = 0;
+	temp = *solution;
+	if (temp && temp->t_id != '$')
+	{
+		*solution = (*solution)->next;
+		temp->next = NULL;
+		free(temp);
 	}
 }
 
-// void	trim_solution(t_filist	*solution, t_board *board)
-// {
-// 	int i;
-// 	int largest_x;
-// 	int largest_y;
+int		compare_cords(t_filist *solution, t_filist *new_elem)
+{
+	int	x;
+	int y;
 
-// 	largest_x = 0;
-// 	largest_y = 0;
-// 	while (solution && solution->t_id != '$')
-// 	{
-// 		i = 0;
-// 		while (i < 4)
-// 		{
-// 			if (solution->cords[0][i] > largest_y)
-// 				largest_y = solution->cords[0][i];
-// 			if (solution->cords[1][i] > largest_x)
-// 				largest_x = solution->cords[1][i];
-// 			i++;
-// 		}
-// 		solution = solution->next;
-// 	}
-// 	i = -1;
-// 	if (largest_x != largest_y)
-// 		return;
-// 	board->result[largest_y + 1] = NULL;
-// 	while (board->result[++i])
-// 		board->result[i][largest_x + 1] = '\0';
-// 	board->side = largest_y + 1;
-// }
+	x = 0;
+	y = 0;
+	while (solution && solution->t_id != '$')
+	{
+		while (x != 4)
+		{
+			while (y != 4)
+			{
+				if (solution->cords[0][y] == new_elem->cords[0][x]
+					&& solution->cords[1][y] == new_elem->cords[1][x])
+					return (-1);
+				y++;
+			}
+			y = 0;
+			x++;
+		}
+		solution = solution->next;
+		x = 0;
+	}
+	return (0);
+}
+
+int		copy_node(t_filist **dest, t_filist *source, int pieces)
+{
+	int			x;
+	int			y;
+	t_filist	*new_node;
+
+	x = 0;
+	y = 0;
+	if (!source || (new_node = malloc(sizeof(t_filist))) == NULL)
+		exit_app("Malloc failed inside copy_node");
+	while (x != 4)
+	{
+		new_node->cords[y][x] = source->cords[y][x];
+		x++;
+		if (x == 4 && y++ == 0)
+			x = 0;
+	}
+	new_node->t_id = source->t_id;
+	new_node->next = *dest;
+	*dest = new_node;
+	x = 0;
+	while (new_node && new_node->t_id != '$')
+	{
+		new_node = new_node->next;
+		x++;
+	}
+	return (x == pieces ? add_separator(dest) : 0);
+}
+
+int		add_separator(t_filist **solutions)
+{
+	t_filist *new_node;
+
+	if (((new_node = malloc(sizeof(t_filist))) == NULL) || !(*solutions))
+		exit_app("Malloc failed inside copy_node");
+	new_node->t_id = '$';
+	new_node->down = NULL;
+	new_node->next = *solutions;
+	*solutions = new_node;
+	return (1);
+}
