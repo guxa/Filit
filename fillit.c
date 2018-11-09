@@ -6,7 +6,7 @@
 /*   By: jguleski <jguleski@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/02 14:50:38 by jguleski          #+#    #+#             */
-/*   Updated: 2018/11/08 18:34:48 by jguleski         ###   ########.fr       */
+/*   Updated: 2018/11/08 18:56:04 by jguleski         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ void		init_board(t_board *board)
 
 void		init_fig(int pieces, t_fig **figures)
 {
-	int	i;
+	int		i;
 	char	c;
 	t_fig	*temp;
 
@@ -49,7 +49,8 @@ void		init_fig(int pieces, t_fig **figures)
 	temp = *figures;
 	while (++i < pieces)
 	{
-		temp->next = malloc(sizeof(t_fig));
+		if ((temp->next = malloc(sizeof(t_fig))) == NULL)
+			exit_app("Malloc inside init_fig failed");
 		temp = temp->next;
 		temp->t_id = ++c;
 		temp->next = NULL;
@@ -59,7 +60,6 @@ void		init_fig(int pieces, t_fig **figures)
 int			main(int argc, char **argv)
 {
 	char		**tetris;
-	int			i;
 	t_board		*res_board;
 	t_filist	*playlist;
 	t_filist	*solutions;
@@ -67,7 +67,6 @@ int			main(int argc, char **argv)
 
 	if (argc != 2)
 		exit_app("usage: fillit target_file");
-	i = 0;
 	playlist = NULL;
 	solutions = NULL;
 	figures = NULL;
@@ -79,27 +78,10 @@ int			main(int argc, char **argv)
 	init_board(res_board);
 	init_fig(res_board->pieces, &figures);
 	scan_figures(tetris, res_board, figures, &playlist);
-
-	//play_tetris(tetris, res_board, &playlist);
 	search_for_sol(res_board, &playlist, &solutions, figures);
-	fill_board(solutions, res_board);
-	while (i < res_board->side)
-		b_printf("%s\n", res_board->result[i++]);
+	fill_n_print(solutions, res_board);
 	return (0);
 }
-
-// void		search_for_sol(t_board *board, t_filist **playlist,
-// t_filist **solutions, char **tetris)
-// {
-// 	//scan_figures
-// 	while (find_solution(board, *playlist, solutions) == 0)
-// 	{
-// 		board->side++;
-// 		new_surface(board);
-// 		clean_playlist(playlist);
-// 		play_tetris(tetris, board, playlist);
-// 	}
-// }
 
 void		search_for_sol(t_board *board, t_filist **playlist,
 t_filist **solutions, t_fig *figures)
@@ -119,6 +101,5 @@ t_filist **solutions, t_fig *figures)
 			figures = figures->next;
 		}
 		figures = head;
-		//play_tetris(tetris, board, playlist);
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: jguleski <jguleski@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/03 23:41:07 by jguleski          #+#    #+#             */
-/*   Updated: 2018/11/06 22:51:21 by jguleski         ###   ########.fr       */
+/*   Updated: 2018/11/08 18:45:40 by jguleski         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ void	insert_in_list(t_filist **main_list, t_filist *newplay)
 		temp->next = newplay;
 }
 
-void	fill_board(t_filist *solutions, t_board *board)
+void	fill_n_print(t_filist *solutions, t_board *board)
 {
 	int			y;
 	int			x;
@@ -82,4 +82,7 @@ void	fill_board(t_filist *solutions, t_board *board)
 		solutions = solutions->next;
 		i = 0;
 	}
+	i = 0;
+	while (i < board->side)
+		b_printf("%s\n", board->result[i++]);
 }

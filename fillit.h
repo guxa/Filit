@@ -6,7 +6,7 @@
 /*   By: jguleski <jguleski@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/02 15:41:19 by jguleski          #+#    #+#             */
-/*   Updated: 2018/11/08 18:34:14 by jguleski         ###   ########.fr       */
+/*   Updated: 2018/11/08 19:00:26 by jguleski         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,16 +15,6 @@
 
 # include "libft.h"
 # include "get_next_line.h"
-
-// typedef struct	s_fillit
-// {
-// 	size_t	score;
-// 	size_t	best_score;
-// 	int		play_col;
-// 	int		play_row;
-// 	int		tem_col;
-// 	int		tem_row;
-// }				t_fillit;
 
 typedef struct	s_board
 {
@@ -50,13 +40,14 @@ typedef struct	s_fig
 	struct s_fig	*next;
 }				t_fig;
 
-void			scan_figures(char **tetris, t_board *board, t_fig *figures, t_filist **playlist);
+void			scan_figures(char **tetris, t_board *board, t_fig *figures,
+							t_filist **playlist);
 void			search_for_sol(t_board *board, t_filist **playlist,
 						t_filist **solutions, t_fig *figures);
 void			clean_playlist(t_filist **playlist);
 void			new_surface(t_board *board);
 void			insert_in_list(t_filist **main_list, t_filist *newplay);
-void			fill_board(t_filist	*solutions, t_board *board);
+void			fill_n_print(t_filist	*solutions, t_board *board);
 void			clean_garbage(t_filist	**solution);
 int				add_separator(t_filist **solutions);
 int				copy_node(t_filist **dest, t_filist *source, int pieces);
@@ -68,7 +59,6 @@ void			exit_app(const char *source);
 int				ft_sqrt(int nb);
 int				check_after(int arr[4], t_board *board, int row, int col);
 void			check_plays(int arr[4], t_board *board, t_filist **list);
-void			play_tetris(char **tetris, t_board *board, t_filist **list);
 int				check_sides(const char **tetris, int pos, int line, int start);
 void			parse_tetris(const char *filepath, char **tetris,
 							t_board *res_board);
