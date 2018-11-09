@@ -6,11 +6,10 @@
 /*   By: jguleski <jguleski@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/05 19:32:24 by jguleski          #+#    #+#             */
-/*   Updated: 2018/11/06 22:48:49 by jguleski         ###   ########.fr       */
+/*   Updated: 2018/11/08 21:38:30 by jguleski         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
 #include "fillit.h"
 
 /*

@@ -6,15 +6,15 @@
 /*   By: jguleski <jguleski@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/02 15:41:19 by jguleski          #+#    #+#             */
-/*   Updated: 2018/11/08 19:00:26 by jguleski         ###   ########.fr       */
+/*   Updated: 2018/11/08 21:36:58 by jguleski         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FILLIT_H
 # define FILLIT_H
 
-# include "libft.h"
-# include "get_next_line.h"
+# include "libft/includes/libft.h"
+# include "libft/includes/get_next_line.h"
 
 typedef struct	s_board
 {

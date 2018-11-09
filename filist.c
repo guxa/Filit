@@ -6,11 +6,10 @@
 /*   By: jguleski <jguleski@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/03 23:41:07 by jguleski          #+#    #+#             */
-/*   Updated: 2018/11/08 18:45:40 by jguleski         ###   ########.fr       */
+/*   Updated: 2018/11/08 21:37:13 by jguleski         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
 #include "fillit.h"
 
 void	store_play(t_board *board, t_filist **main_list)
