@@ -6,7 +6,7 @@
 /*   By: jguleski <jguleski@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/06 22:27:59 by jguleski          #+#    #+#             */
-/*   Updated: 2018/11/08 21:38:43 by jguleski         ###   ########.fr       */
+/*   Updated: 2018/11/09 20:21:12 by jguleski         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,7 @@ void		parse_tetris(const char *filepath, char **tetris, t_board *board)
 	i = 0;
 	if ((fd = open(filepath, O_RDONLY, S_IRUSR)) < 0)
 		exit_app("File doesn't exist");
-	while (get_next_line(fd, &line))
+	while (get_next_line(fd, &line) > 0)
 	{
 		if (((i + 1) % 5 == 0) && ft_strequ(line, "") == 0)
 			exit_app("error");

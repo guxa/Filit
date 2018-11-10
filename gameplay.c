@@ -6,7 +6,7 @@
 /*   By: jguleski <jguleski@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/02 16:43:17 by jguleski          #+#    #+#             */
-/*   Updated: 2018/11/08 21:05:07 by jguleski         ###   ########.fr       */
+/*   Updated: 2018/11/09 20:17:00 by jguleski         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,6 +97,8 @@ void	clean_playlist(t_filist **playlist)
 	t_filist *temp;
 	t_filist *temp_d;
 
+	if (*playlist == NULL)
+		return ;
 	temp_d = (*playlist)->down;
 	while (temp_d)
 	{
