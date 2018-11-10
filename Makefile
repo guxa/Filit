@@ -6,7 +6,7 @@
 #    By: jguleski <jguleski@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/09/14 16:52:43 by jguleski          #+#    #+#              #
-#    Updated: 2018/11/08 22:01:24 by jguleski         ###   ########.fr        #
+#    Updated: 2018/11/08 22:09:29 by jguleski         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -47,6 +47,7 @@ debug: $(SRC) $(LIB)
 clean:
 		make -C $(LIBFT) clean
 		@rm -rf $(OBJECTS_DIR)
+
 fclean:	clean
 		rm -f $(NAME)
 		@make -C $(LIBFT) fclean
