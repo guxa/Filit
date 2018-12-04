@@ -4,5 +4,5 @@ From the subject:
 Obviously, your main goal is to find the smallest square in the minimal amount of time, despite an exponentially growing number of possibilities each time a piece is added."
 
 The allowed library functions are : exit, open, close, write, read, malloc and free.
-All other functions that we use to complete the project have to be recoded by us. (like strdup, strlen etc.) 
-Creating our own library functions is the first project of the program, so our library is included in the repository too.
+All other functions that we use to complete projects(like strdup, strlen etc.) have to be recoded by us. 
+Creating our own library functions is the first project of the program, so our library (that is included in this repository too) is used in all of the future projects.
